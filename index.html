@@ -165,6 +165,20 @@
             backdrop-filter: blur(3px);
         }
 
+        .links:link{
+            text-decoration: none;
+            color:rgb(138, 43, 226);
+            font-weight: bold;
+        }
+
+        .links:hover{
+            color: rgb(191, 128, 250);
+        }
+
+        /* .links:visited{
+            color: rgb(94, 28, 156);
+        } */
+
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(18px); }
             to { opacity: 1; transform: translateY(0); }
@@ -172,8 +186,6 @@
     </style>
 </head>
 <body>
-    <div class="blob one"></div>
-    <div class="blob two"></div>
 
     <header data-parallax>
         <h1>Kaleb Fling</h1>
@@ -200,24 +212,25 @@
             <h2>Projects</h2>
             <p>Here are a few example projects (replace these with your real work):</p>
             <div class="grid">
-                <div class="card">
-                    <h3>Task Tracker CLI</h3>
-                    <p>
-                        A Python-based command-line tool for creating, organizing,
-                        and exporting tasks with tags and deadlines.
-                    </p>
-                    <a href="https://github.com/kabalab/" target="_blank">Repository</a>
-                    <div class="tag">Python • CLI • JSON</div>
-                </div>
-                <div class="card">
-                    <h3>Java Budget Planner</h3>
-                    <p>
-                        A Java app that helps users track expenses and visualize monthly
-                        spending with summaries.
-                    </p>
-                    <a href="https://github.com/kabalab/" target="_blank">Repository</a>
-                    <div class="tag">Java • OOP • Data</div>
-                </div>
+                <a class = "links" href="https://example.com" target="_blank">
+                    <div class="card">
+                        <h3>Task Tracker CLI</h3>
+                        <p>
+                            A Python-based command-line tool for creating, organizing,
+                            and exporting tasks with tags and deadlines.
+                        </p>                        <div class="tag">Python • CLI • JSON</div>
+                    </div>
+                </a>
+                <a class = "links" href="https://example.com" target="_blank">
+                    <div class="card" style="cursor: pointer;">
+                        <h3>Java Budget Planner</h3>
+                        <p>
+                            A Java app that helps users track expenses and visualize monthly
+                            spending with summaries.
+                        </p>
+                        <div class="tag">Java • OOP • Data</div>
+                    </div>
+                </a>
             </div>
         </section>
 
