@@ -23,7 +23,7 @@
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text);
             line-height: 1.7;
-            background: #0b1220;
+            background: var(--bg);
             overflow-x: hidden;
         }
 
@@ -31,6 +31,7 @@
             position: fixed !important;
             inset: 0;
             z-index: -3;
+            pointer-events: none;
         }
 
         .blob {
@@ -56,7 +57,6 @@
             border-bottom: 1px solid var(--border);
             background: radial-gradient(circle at top, #132845 0%, rgba(11,18,32,0.85) 55%);
             animation: fadeDown 1s ease both;
-            backdrop-filter: blur(3px);
         }
 
         @keyframes fadeDown {
@@ -68,30 +68,13 @@
             margin: 0 0 0.5rem;
             font-size: 2.5rem;
             letter-spacing: 0.5px;
+            text-shadow: 0 8px 20px rgba(59,130,246,0.3);
         }
 
         header p {
             margin: 0 0 1.5rem;
             color: var(--muted);
             font-size: 1.05rem;
-        }
-
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            margin: 0 0.75rem;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(59, 130, 246, 0.12);
-            border: 1px solid transparent;
-            transition: all 0.25s ease;
-            display: inline-block;
-        }
-        nav a:hover {
-            border-color: var(--accent);
-            background: rgba(59, 130, 246, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(59, 130, 246, 0.25);
         }
 
         main {
@@ -106,15 +89,16 @@
             background: rgba(16, 31, 54, 0.92);
             border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(5, 10, 20, 0.35);
+            box-shadow: 0 10px 30px rgba(5, 10, 20, 0.35), 0 0 20px rgba(59,130,246,0.08);
             opacity: 0;
-            transform: translateY(18px);
+            --reveal-y: 18px;
+            --parallax-y: 0px;
+            transform: translateY(var(--reveal-y)) translateY(var(--parallax-y));
             transition: opacity 0.7s ease, transform 0.7s ease;
-            backdrop-filter: blur(2px);
         }
         section.show {
             opacity: 1;
-            transform: translateY(0);
+            --reveal-y: 0px;
         }
 
         section h2 {
@@ -122,6 +106,16 @@
             font-size: 1.6rem;
             border-left: 4px solid var(--accent);
             padding-left: 0.75rem;
+            position: relative;
+        }
+        section h2::after {
+            content: "";
+            display: block;
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+            margin-top: 0.4rem;
+            opacity: 0.6;
         }
 
         .grid {
@@ -134,7 +128,7 @@
             padding: 1rem;
             border-radius: 12px;
             border: 1px solid var(--border);
-            background: rgba(15, 27, 51, 0.9);
+            background: linear-gradient(145deg, rgba(18,30,56,0.95), rgba(12,20,40,0.95));
             transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
         .card:hover {
@@ -162,22 +156,34 @@
             border-top: 1px solid var(--border);
             background: rgba(11, 18, 32, 0.9);
             animation: fadeUp 1s ease both;
-            backdrop-filter: blur(3px);
         }
 
         .links:link{
             text-decoration: none;
-            color:rgb(138, 43, 226);
-            font-weight: bold;
+            color: rgb(138, 43, 226);
         }
 
         .links:hover{
             color: rgb(191, 128, 250);
         }
 
-        /* .links:visited{
-            color: rgb(94, 28, 156);
-        } */
+        .links:visited{
+            color: rgb(138, 43, 226);
+        }
+
+        .credly-badge {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .credly-card {
+            background: #0f1b2e;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem;
+            box-shadow: 0 10px 20px rgba(5, 10, 20, 0.35);
+        }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(18px); }
@@ -190,12 +196,6 @@
     <header data-parallax>
         <h1>Kaleb Fling</h1>
         <p>Coder in Java and Python</p>
-        <nav>
-            <a href="#about">About</a>
-            <a href="#projects">Projects</a>
-            <a href="#credentials">Credentials</a>
-            <a href="#contact">Contact</a>
-        </nav>
     </header>
 
     <main>
@@ -212,16 +212,17 @@
             <h2>Projects</h2>
             <p>Here are a few example projects (replace these with your real work):</p>
             <div class="grid">
-                <a class = "links" href="https://example.com" target="_blank">
+                <a class="links" href="https://example.com" target="_blank" rel="noopener noreferrer">
                     <div class="card">
                         <h3>Task Tracker CLI</h3>
                         <p>
                             A Python-based command-line tool for creating, organizing,
                             and exporting tasks with tags and deadlines.
-                        </p>                        <div class="tag">Python • CLI • JSON</div>
+                        </p>
+                        <div class="tag">Python • CLI • JSON</div>
                     </div>
                 </a>
-                <a class = "links" href="https://example.com" target="_blank">
+                <a class="links" href="https://example.com" target="_blank" rel="noopener noreferrer">
                     <div class="card" style="cursor: pointer;">
                         <h3>Java Budget Planner</h3>
                         <p>
@@ -239,15 +240,19 @@
             <ul>
                 <li><strong>Python Certification</strong> - (Example: Issuer, 2025)</li>
             </ul>
+            <div class="credly-badge">
+                <div class="card">
+                    <div data-iframe-width="150" data-iframe-height="270" data-share-badge-id="16fd2da7-ae63-4306-961d-416d53b7f4fe" data-share-badge-host="https://www.credly.com"></div>
+                </div>
+            </div>
+            <script type="text/javascript" async src="https://cdn.credly.com/assets/utilities/embed.js"></script>
         </section>
 
         <section id="contact" data-parallax>
             <h2>Contact</h2>
-            <ul>
-                <li>Email: <a href="mailto:Kaleb@theflings.com">Kaleb@theflings.com</a></li>
-                <li>GitHub: <a href="https://github.com/kabalab/" target="_blank">github.com/kabalab</a></li>
-                <li>LinkedIn: <em>(Add later)</em></li>
-            </ul>
+            <a class="links" href="mailto:Kaleb@theflings.com" target="_blank" rel="noopener noreferrer"><div class="card" style="text-align: center;cursor: pointer;" ><strong>Email</strong></div></a>
+            <a class="links" href="https://github.com/kabalab/" target="_blank" rel="noopener noreferrer"><div class="card" style="text-align: center;cursor: pointer;" ><strong>GitHub</strong></div></a>
+            <a class="links" href="https://linkedin.com/in/kalebfling" target="_blank" rel="noopener noreferrer"><div class="card" style="text-align: center;cursor: pointer;" ><strong>LinkedIn</strong></div></a>
         </section>
     </main>
 
@@ -257,14 +262,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.min.js"></script>
     <script>
-        // ===== Scroll progress for color change =====
         let scrollT = 0;
         window.addEventListener("scroll", () => {
             const maxScroll = document.body.scrollHeight - window.innerHeight;
             scrollT = maxScroll > 0 ? window.scrollY / maxScroll : 0;
         });
 
-        // ===== Your p5.js background sketch =====
         let widt;
 
         class Shape {
@@ -357,9 +360,7 @@
             resizeCanvas(window.innerWidth, window.innerHeight);
             widt = Math.max(window.innerWidth, window.innerHeight);
         }
-        // ===== End p5.js =====
 
-        // Scroll reveal animation
         const sections = document.querySelectorAll("section");
         const revealOnScroll = () => {
             const trigger = window.innerHeight * 0.85;
@@ -371,13 +372,12 @@
         window.addEventListener("scroll", revealOnScroll);
         window.addEventListener("load", revealOnScroll);
 
-        // Parallax effect
         const parallaxItems = document.querySelectorAll("[data-parallax]");
         window.addEventListener("scroll", () => {
             const scrollY = window.scrollY;
             parallaxItems.forEach((el, i) => {
                 const speed = 0.02 + (i * 0.005);
-                el.style.transform = `translateY(${scrollY * speed}px)`;
+                el.style.setProperty("--parallax-y", `${scrollY * speed}px`);
             });
         });
     </script>
