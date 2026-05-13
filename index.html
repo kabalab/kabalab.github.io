@@ -19,8 +19,14 @@
 
         * { box-sizing: border-box; }
 
-        body {
+        html, body {
             margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            position: relative;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text);
             line-height: 1.7;
@@ -28,9 +34,15 @@
             overflow-x: hidden;
         }
 
+        #page {
+            position: relative;
+            z-index: 1;
+        }
+
         canvas {
-            position: fixed !important;
-            inset: 0;
+            position: absolute !important;
+            top: 0;
+            left: 0;
             z-index: -3;
             pointer-events: none;
         }
@@ -151,11 +163,13 @@
         a { color: var(--accent); }
 
         footer {
+            position: relative;
+            z-index: 2;
             text-align: center;
             padding: 1.5rem;
             color: var(--muted);
             border-top: 1px solid var(--border);
-            background: rgba(11, 18, 32, 0.9);
+            background: rgba(11, 18, 32, 0.95);
             animation: fadeUp 1s ease both;
         }
 
@@ -190,6 +204,7 @@
 </head>
 <body>
 
+<div id="page">
     <header data-parallax>
         <h1>Kaleb Fling</h1>
         <p>Coder in Java and Python</p>
@@ -253,127 +268,145 @@
     <footer>
         <p><img src="https://worldenoughandtimeblog.com/wp-content/uploads/2014/01/the-most-ridiculously-good-looking-alpaca-hairdos-11.jpg?w=584" alt="Alpaca Image" style="height: 1em;"> &copy; 2026 Kaleb Fling. All rights reserved. <img src="https://worldenoughandtimeblog.com/wp-content/uploads/2014/01/the-most-ridiculously-good-looking-alpaca-hairdos-11.jpg?w=584" alt="Alpaca Image" style="height: 1em;"></p>
     </footer>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.min.js"></script>
-    <script>
-        let scrollT = 0;
-        window.addEventListener("scroll", () => {
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            scrollT = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+<script src="https://cdn.jsdelivr.net/npm/p5@1.9.2/lib/p5.min.js"></script>
+<script>
+    let scrollT = 0;
+    window.addEventListener("scroll", () => {
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        scrollT = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+    });
+
+    let widt;
+
+    class Shape {
+        static shapes = [];
+
+        constructor(on=false, x=random(widt/100*3, width-widt/100*3), y=random(-height, -height/2),
+                    w=random(widt/100, widt/100*3), go=1, shapeC=["Box", "Tri", "Pen"][Math.floor(Math.random() * 3)]) {
+            this.reset(on, x, y, w, go, shapeC);
+        }
+
+        reset(on=false, x=random(widt/100*3, width-widt/100*3), y=random(-height, -height/2),
+              w=random(widt/100, widt/100*4), go=1, shapeC=random(["Box", "Tri", "Pen"]),
+              r=((random(100) < 5) ? random(3) : 0)) {
+            this.W = w;
+            this.R = random(0.005,0.01) * random([-1,1]);
+            this.vel = map(w, widt/100, widt/100*3, 2.5, 5);
+            this.x = x;
+            this.y = y;
+            this.a = random(100);
+            this.go = go;
+            this.b = random(255);
+            this.r = floor(r);
+            if (shapeC == "Box") {
+                this.angles = {
+                    1: Math.PI / 2 * 0 + this.a,
+                    2: Math.PI / 2 * 1 + this.a,
+                    3: Math.PI / 2 * 2 + this.a,
+                    4: Math.PI / 2 * 3 + this.a
+                };
+            } else if (shapeC == "Tri") {
+                this.angles = {
+                    1: Math.PI * 2 / 3 * 0 + this.a,
+                    2: Math.PI * 2 / 3 * 1 + this.a,
+                    3: Math.PI * 2 / 3 * 2 + this.a
+                };
+            } else if (shapeC == "Pen") {
+                this.angles = {
+                    1: Math.PI * 2 / 5 * 0 + this.a,
+                    2: Math.PI * 2 / 5 * 1 + this.a,
+                    3: Math.PI * 2 / 5 * 2 + this.a,
+                    4: Math.PI * 2 / 5 * 3 + this.a,
+                    5: Math.PI * 2 / 5 * 4 + this.a,
+                };
+            }
+            if (on) {
+                Shape.shapes.push(this);
+            }
+        }
+
+        static renderer() {
+            for (const shape of Shape.shapes) {
+                shape.render();
+            }
+        }
+
+        render() {
+            noStroke();
+            fill(0, 0, this.b);
+            beginShape();
+            for (let key in this.angles) {
+                vertex(this.x + this.W/2 * sin(this.angles[key]),
+                       this.y + this.W/2 * cos(this.angles[key]));
+                this.angles[key] += (key != this.r) ? this.R : 0;
+            }
+            endShape(CLOSE);
+            this.y += this.vel * this.go;
+            if (this.y > height) {
+                this.reset();
+            }
+        }
+    }
+
+    function resizeToPage() {
+        const page = document.getElementById("page");
+        const pageHeight = Math.ceil(page.getBoundingClientRect().height);
+        resizeCanvas(window.innerWidth, pageHeight);
+        widt = Math.max(window.innerWidth, pageHeight);
+    }
+
+    function setup() {
+        const page = document.getElementById("page");
+        const pageHeight = Math.ceil(page.getBoundingClientRect().height);
+        widt = Math.max(window.innerWidth, pageHeight);
+        const cnv = createCanvas(window.innerWidth, pageHeight);
+        cnv.position(0, 0);
+        cnv.style('position', 'absolute');
+        cnv.style('top', '0');
+        cnv.style('left', '0');
+        cnv.style('z-index', '-3');
+        cnv.style('pointer-events', 'none');
+
+        for (let i = 0; i < 400; i++) {
+            new Shape(true, random(width), random(-height/2.5, height));
+        }
+    }
+
+    function draw() {
+        const r = 11 + (5 * scrollT);
+        const g = 18 + (10 * scrollT);
+        const b = 32 + (30 * scrollT);
+        background(r, g, b);
+        Shape.renderer();
+    }
+
+    window.addEventListener("load", () => {
+        resizeToPage();
+        setTimeout(resizeToPage, 300);
+    });
+    window.addEventListener("resize", resizeToPage);
+
+    const sections = document.querySelectorAll("section");
+    const revealOnScroll = () => {
+        const trigger = window.innerHeight * 0.85;
+        sections.forEach((section) => {
+            const top = section.getBoundingClientRect().top;
+            if (top < trigger) section.classList.add("show");
         });
+    };
+    window.addEventListener("scroll", revealOnScroll);
+    window.addEventListener("load", revealOnScroll);
 
-        let widt;
-
-        class Shape {
-            static shapes = [];
-
-            constructor(on=false, x=random(widt/100*3, width-widt/100*3), y=random(-width, -width/2),
-                        w=random(widt/100, widt/100*3), go=1, shapeC=["Box", "Tri", "Pen"][Math.floor(Math.random() * 3)]) {
-                this.reset(on, x, y, w, go, shapeC);
-            }
-
-            reset(on=false, x=random(widt/100*3, width-widt/100*3), y=random(-width, -width/2),
-                  w=random(widt/100, widt/100*4), go=1, shapeC=random(["Box", "Tri", "Pen"]),
-                  r=((random(100) < 5) ? random(3) : 0)) {
-                this.W = w;
-                this.R = random(0.005,0.01) * random([-1,1]);
-                this.vel = map(w, widt/100, widt/100*3, 2.5, 5);
-                this.x = x;
-                this.y = y;
-                this.a = random(100);
-                this.go = go;
-                this.b = random(255);
-                this.r = floor(r);
-                if (shapeC == "Box") {
-                    this.angles = {
-                        1: Math.PI / 2 * 0 + this.a,
-                        2: Math.PI / 2 * 1 + this.a,
-                        3: Math.PI / 2 * 2 + this.a,
-                        4: Math.PI / 2 * 3 + this.a
-                    };
-                } else if (shapeC == "Tri") {
-                    this.angles = {
-                        1: Math.PI * 2 / 3 * 0 + this.a,
-                        2: Math.PI * 2 / 3 * 1 + this.a,
-                        3: Math.PI * 2 / 3 * 2 + this.a
-                    };
-                } else if (shapeC == "Pen") {
-                    this.angles = {
-                        1: Math.PI * 2 / 5 * 0 + this.a,
-                        2: Math.PI * 2 / 5 * 1 + this.a,
-                        3: Math.PI * 2 / 5 * 2 + this.a,
-                        4: Math.PI * 2 / 5 * 3 + this.a,
-                        5: Math.PI * 2 / 5 * 4 + this.a,
-                    };
-                }
-                if (on) {
-                    Shape.shapes.push(this);
-                }
-            }
-
-            static renderer() {
-                for (const shape of Shape.shapes) {
-                    shape.render();
-                }
-            }
-
-            render() {
-                noStroke();
-                fill(0, 0, this.b);
-                beginShape();
-                for (let key in this.angles) {
-                    vertex(this.x + this.W/2 * sin(this.angles[key]),
-                           this.y + this.W/2 * cos(this.angles[key]));
-                    this.angles[key] += (key != this.r) ? this.R : 0;
-                }
-                endShape(CLOSE);
-                this.y += this.vel * this.go;
-                if (this.y > width) {
-                    this.reset();
-                }
-            }
-        }
-
-        function setup() {
-            widt = Math.max(window.innerWidth, window.innerHeight);
-            createCanvas(window.innerWidth, window.innerHeight);
-            for (let i = 0; i < 400; i++) {
-                new Shape(true, random(width), random(-width/2.5, width));
-            }
-        }
-
-        function draw() {
-            const r = 11 + (5 * scrollT);
-            const g = 18 + (10 * scrollT);
-            const b = 32 + (30 * scrollT);
-            background(r, g, b);
-            Shape.renderer();
-        }
-
-        function windowResized() {
-            resizeCanvas(window.innerWidth, window.innerHeight);
-            widt = Math.max(window.innerWidth, window.innerHeight);
-        }
-
-        const sections = document.querySelectorAll("section");
-        const revealOnScroll = () => {
-            const trigger = window.innerHeight * 0.85;
-            sections.forEach((section) => {
-                const top = section.getBoundingClientRect().top;
-                if (top < trigger) section.classList.add("show");
-            });
-        };
-        window.addEventListener("scroll", revealOnScroll);
-        window.addEventListener("load", revealOnScroll);
-
-        const parallaxItems = document.querySelectorAll("[data-parallax]");
-        window.addEventListener("scroll", () => {
-            const scrollY = window.scrollY;
-            parallaxItems.forEach((el, i) => {
-                const speed = 0.02 + (i * 0.005);
-                el.style.setProperty("--parallax-y", `${scrollY * speed}px`);
-            });
+    const parallaxItems = document.querySelectorAll("[data-parallax]");
+    window.addEventListener("scroll", () => {
+        const scrollY = window.scrollY;
+        parallaxItems.forEach((el, i) => {
+            const speed = 0.02 + (i * 0.005);
+            el.style.setProperty("--parallax-y", `${scrollY * speed}px`);
         });
-    </script>
+    });
+</script>
 </body>
 </html>
